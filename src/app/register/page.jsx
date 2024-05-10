@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import axios from "axios";
 
 export default function Home() {
   const [formState, setFormState] = useState({
@@ -43,10 +44,16 @@ export default function Home() {
       return;
     }
 
+    if (formState.password.length < 8) {
+      alert("Password too short");
+      return;
+    }
+
     if (formState.confirmPassword === "") {
       alert("Please confirm your password");
       return;
     }
+
     if (formState.password !== formState.confirmPassword) {
       alert("Passwords do not match");
       return;
@@ -56,19 +63,16 @@ export default function Home() {
 
     const name = firstName + " " + lastName;
 
-    const response = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name,
-        email,
-        password,
-      }),
-    });
+    const response = await axios.post(
+      "/api/auth/register",
+      JSON.stringify({ name, email, password })
+    );
 
-    if (response.status === 201) {
+    if (response.status === 200) {
+      const { name } = response.data.data;
+
+      localStorage.removeItem("name");
+      localStorage.setItem("name", name);
       setFormState({
         firstName: "",
         lastName: "",

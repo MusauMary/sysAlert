@@ -1,5 +1,6 @@
 "use client";
 
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 export default function Home() {
@@ -35,18 +36,17 @@ export default function Home() {
 
     const { email, password } = formState;
 
-    const response = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
+    const response = await axios.post(
+      "/api/auth/login",
+      JSON.stringify({ email, password })
+    );
 
-    if (response.status === 201) {
+    if (response.status === 200) {
+      const { name } = response.data.data;
+
+      localStorage.removeItem("name");
+      localStorage.setItem("name", name);
+
       setFormState({
         email: "",
         password: "",

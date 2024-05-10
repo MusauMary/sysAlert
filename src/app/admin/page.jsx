@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useRouter } from "next/navigation";
 
 const page = () => {
   const [notifications, setNotifications] = useState([]);
@@ -10,9 +9,8 @@ const page = () => {
   const [formState, setFormState] = useState({
     title: "",
     message: "",
+    solution: "",
   });
-
-  const router = useRouter();
 
   const handleChange = (evt) => {
     const value = evt.target.value;
@@ -46,7 +44,12 @@ const page = () => {
       return;
     }
 
-    const { title, message } = formState;
+    if (formState.solution === "") {
+      alert("Please enter your solution");
+      return;
+    }
+
+    const { title, message, solution } = formState;
 
     const response = await fetch("/api/alerts", {
       method: "POST",
@@ -56,13 +59,15 @@ const page = () => {
       body: JSON.stringify({
         title,
         message,
+        solution,
       }),
     });
 
-    if (response.status === 201) {
+    if (response.status === 200) {
       setFormState({
         title: "",
         message: "",
+        solution: "",
       });
     }
   };
@@ -71,12 +76,28 @@ const page = () => {
     setFormState({
       title: "",
       message: "",
+      solution: "",
     });
   };
 
   return (
-    <div className="h-full w-full p-5">
-      <div className="grid grid-cols-2 gap-4">
+    <div className="h-full w-full">
+      <header className="bg-gray-50">
+        <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+          <div className="sm:flex sm:items-center sm:justify-between">
+            <div className="text-center sm:text-left">
+              <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+                Welcome Back,
+              </h1>
+
+              <p className="mt-1.5 text-sm text-gray-500">
+                Post and view system alerts here!
+              </p>
+            </div>
+          </div>
+        </div>
+      </header>
+      <div className="grid grid-cols-2 gap-4 m-6">
         <div>
           <div className="mb-5">
             <input
@@ -89,17 +110,30 @@ const page = () => {
             />
           </div>
 
+          <div class="overflow-hidden rounded-lg border border-gray-200 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600 mb-5">
+            <textarea
+              id="message"
+              type="text"
+              name="message"
+              value={formState.message}
+              onChange={handleChange}
+              class="w-full resize-none border-none align-top focus:ring-0 sm:text-sm"
+              rows="4"
+              placeholder="Enter notification content..."
+            ></textarea>
+          </div>
+
           <div>
             <div class="overflow-hidden rounded-lg border border-gray-200 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600">
               <textarea
-                id="message"
+                id="solution"
                 type="text"
-                name="message"
-                value={formState.message}
+                name="solution"
+                value={formState.solution}
                 onChange={handleChange}
                 class="w-full resize-none border-none align-top focus:ring-0 sm:text-sm"
                 rows="4"
-                placeholder="Enter notification content..."
+                placeholder="Enter notification solution..."
               ></textarea>
 
               <div class="flex items-center justify-end gap-2 bg-white p-3">
@@ -126,24 +160,22 @@ const page = () => {
         <div>
           {notifications.map((notification) => (
             <article class=" rounded-lg bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-lg transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s] mb-5">
-              <div class="rounded-[10px] bg-white p-4 !pt-20 sm:p-6">
+              <div class="rounded-[10px] bg-white p-4 !pt-5 sm:p-6">
                 <time datetime="2022-10-10" class="block text-xl text-gray-500">
                   {notification.title}
                 </time>
 
-                <a href="#">
-                  <h3 class="mt-0.5 text-lg font-medium text-gray-900">
-                    {notification.message}
-                  </h3>
-                </a>
+                <h3 class="mt-0.5 text-lg font-medium text-gray-900">
+                  {notification.message}
+                </h3>
+
+                <h3 class="mt-0.5 text-lg font-medium text-gray-900">
+                  {notification.solution}
+                </h3>
 
                 <div class="mt-4 flex flex-wrap gap-1">
                   <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
-                    Snippet
-                  </span>
-
-                  <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
-                    JavaScript
+                    {notification.createdAt}
                   </span>
                 </div>
               </div>
