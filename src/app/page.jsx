@@ -36,23 +36,27 @@ export default function Home() {
 
     const { email, password } = formState;
 
-    const response = await axios.post(
-      "/api/auth/login",
-      JSON.stringify({ email, password })
-    );
+    try {
+      const response = await axios.post(
+        "/api/auth/login",
+        JSON.stringify({ email, password })
+      );
 
-    if (response.status === 200) {
-      const { name } = response.data.data;
+      if (response.status === 200) {
+        const { name } = response.data.data;
 
-      localStorage.removeItem("name");
-      localStorage.setItem("name", name);
+        localStorage.removeItem("name");
+        localStorage.setItem("name", name);
 
-      setFormState({
-        email: "",
-        password: "",
-      });
+        setFormState({
+          email: "",
+          password: "",
+        });
 
-      router.push("/alerts");
+        router.push("/alerts");
+      }
+    } catch (error) {
+      alert("Invalid credentials");
     }
   };
 

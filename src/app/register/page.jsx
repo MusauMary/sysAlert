@@ -23,6 +23,12 @@ export default function Home() {
     });
   };
 
+  const validateEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    return regex.test(email);
+  };
+
   const registerAccount = async () => {
     if (formState.firstName === "") {
       alert("Please enter your first name");
@@ -36,6 +42,11 @@ export default function Home() {
 
     if (formState.email === "") {
       alert("Please enter your email");
+      return;
+    }
+
+    if (validateEmail(formState.email) === false) {
+      alert("Please enter a valid email adress");
       return;
     }
 
@@ -63,25 +74,29 @@ export default function Home() {
 
     const name = firstName + " " + lastName;
 
-    const response = await axios.post(
-      "/api/auth/register",
-      JSON.stringify({ name, email, password })
-    );
+    try {
+      const response = await axios.post(
+        "/api/auth/register",
+        JSON.stringify({ name, email, password })
+      );
 
-    if (response.status === 200) {
-      const { name } = response.data.data;
+      if (response.status === 200) {
+        const { name } = response.data.data;
 
-      localStorage.removeItem("name");
-      localStorage.setItem("name", name);
-      setFormState({
-        firstName: "",
-        lastName: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-      });
+        localStorage.removeItem("name");
+        localStorage.setItem("name", name);
+        setFormState({
+          firstName: "",
+          lastName: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+        });
 
-      router.push("/alerts");
+        router.push("/alerts");
+      }
+    } catch (error) {
+      alert("User already exists, try logging in.");
     }
   };
 
