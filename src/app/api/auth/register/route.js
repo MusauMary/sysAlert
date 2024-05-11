@@ -9,7 +9,7 @@ export async function POST(req, res) {
   console.log(name);
   try {
     const user = await User.create({ name, email, password });
-    return NextResponse.json({ success: true, data: user }, { status: 201 });
+    return NextResponse.json({ success: true, data: user }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { success: false, error: error.message },
